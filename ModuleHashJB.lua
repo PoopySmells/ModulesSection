@@ -1,5 +1,16 @@
 local Hashes = {};
 
+for i,v in pairs(getgc(true)) do 
+	if typeof(v) == 'function' then 
+		if getfenv(v).script == game:GetService('Players').LocalPlayer.PlayerScripts.LocalScript then
+			local constants = getconstants(v)
+			if table.find(constants, "hems") and #constants == 1 then
+				Hashes.All = getupvalue(v, 2)
+			end
+		end
+	end
+end
+
 function Hashes:addHash(name,properties)
     -- // Hash Adder // --
     local hash = properties.Hash;
@@ -32,16 +43,37 @@ function Hashes:GetHash(hashName)
     end
 end
 
--- // Gun Hash // --
+function Hashes:FindHash(hashTable)
+	local da = tbl[1]
+    local db = tbl[table.maxn(tbl)]
+    local Hashes = AllHashes()
+    for i,v in pairs(Hashes.All) do 
+        if string.find(i,da) and string.find(i, db) and string.match(i,da) and string.match(i,db) then 
+            return i
+        end
+    end
+end
+
+-- // Hash List // --
 for i,v in pairs(getgc(true)) do 
-	if type(v) == "function" and getfenv(v).script == game:GetService('ReplicatedStorage').Game.GunShop then 
-		local Cons = getconstants(v)
-		for i2,v2 in pairs(Cons) do 
-			if i2 > 4 and table.find(Cons,'CanGrab') and i2 < 6 and table.find(Cons,'FireServer') then 
-				addHash('GunHash',{Hash = tostring(v2)})
+	if type(v) == "function" then 
+		if getfenv(v).script == game:GetService('ReplicatedStorage').Game.GunShop then 
+			local Cons = getconstants(v)
+			for i2,v2 in pairs(Cons) do 
+				if i2 > 4 and table.find(Cons,'CanGrab') and i2 < 6 and table.find(Cons,'FireServer') then 
+					Hashes:addHash('GunHash',{Hash = tostring(v2)})
+				end
 			end
 		end
 	end
+end
+
+local path = getconstants(require(game:GetService('ReplicatedStorage').Game.Item.Taser).Tase)
+
+for i,v in pairs(path) do 
+    if i > table.find(path,'GetPlayerFromCharacter') and i < table.find(path,'Name') then 
+        Hashes:addHash('TaserHash',{Hash = tostring(v)})
+    end
 end
 
 return Hashes
