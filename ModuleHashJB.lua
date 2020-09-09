@@ -1,4 +1,10 @@
 local Hashes = {};
+local API = {};
+
+local getupvalues = debug.getupvalues or getupvalues;
+local getconstants = debug.getconstants or getconstants;
+local getupvalue = debug.getupvalue or getupvalue;
+local getupvalue = debug.getconstant or getconstant;
 
 for i,v in pairs(getgc(true)) do 
 	if typeof(v) == 'function' then 
@@ -11,39 +17,25 @@ for i,v in pairs(getgc(true)) do
 	end
 end
 
-function Hashes:addHash(name,properties)
-    -- // Hash Adder // --
-    local hash = properties.Hash;
-
+function API:addHash(name,hash)
     if tostring(name) ~= nil and tostring(hash) ~= nil then 
-        Hashes[#Hashes + 1] = {HashInfo = tostring(name), HashString = hash};
-        return;
+		Hashes[tostring(name)] = tostring(hash);
+		return;
     end
 end
 
-function Hashes:removeHash(name)
-    -- // Hash Remover // --
-    if typeof(name) == "string" then 
-        for k,v in next, Hashes do 
-            if v.HashInfo == tostring(name) then 
-                 table.remove(Hashes,k)
-            end
-        end
-    end
-end
-
-function Hashes:GetHash(hashName)
+function API:GetHash(hashName)
     -- // Hash Grabber // --
     if typeof(hashName) == 'string' then 
-        for _,Info in pairs(Hashes) do 
-            if Info.HashInfo and Info.HashString then 
-                return (Info.HashInfo == tostring(hashName) and tostring(Info.HashString) or nil);
+        for Info,Hash in pairs(Hashes) do 
+            if Info and Hash then 
+                return (Info == tostring(hashName) and tostring(Hash) or nil);
             end
         end
     end
 end
 
-function Hashes:FindHash(hashTable)
+function API:FindHash(hashTable)
 	local da = tbl[1]
     local db = tbl[table.maxn(tbl)]
     local Hashes = AllHashes()
@@ -61,7 +53,7 @@ for i,v in pairs(getgc(true)) do
 			local Cons = getconstants(v)
 			for i2,v2 in pairs(Cons) do 
 				if i2 > 4 and table.find(Cons,'CanGrab') and i2 < 6 and table.find(Cons,'FireServer') then 
-					Hashes:addHash('GunHash',{Hash = tostring(v2)})
+					API:addHash('GunHash',tostring(v2))
 				end
 			end
 		end
@@ -72,8 +64,7 @@ local path = getconstants(require(game:GetService('ReplicatedStorage').Game.Item
 
 for i,v in pairs(path) do 
     if i > table.find(path,'GetPlayerFromCharacter') and i < table.find(path,'Name') then 
-        Hashes:addHash('TaserHash',{Hash = tostring(v)})
+        API:addHash('TaserHash',tostring(v))
     end
 end
-
-return Hashes
+return API;
